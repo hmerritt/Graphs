@@ -79,7 +79,7 @@ while True:
     if len(gr) == 0:
         # add first room
         gr[room_id] = gr_init_room()
-        gr[room_id]["bread_crum"] = []
+        gr[room_id]["bread_crums"] = []
     elif len(gr) >= 500 and room_id == 0:
         # complete traversal
         break
@@ -92,27 +92,26 @@ while True:
         # travel to new room
         room_id_new = walk(traverse_dir)
 
+        # create 'bread_crum' of how to walk back faster
+        bread_crum = dir_reverse(traverse_dir)
+
         # init room
         if room_id_new not in gr:
             gr[room_id_new] = gr_init_room()
-
-            # add 'bread_crum' of how to walk back faster
-            bread_crum = dir_reverse(traverse_dir)
-            gr[room_id_new]["bread_crum"] = [bread_crum]
+            gr[room_id_new]["bread_crums"] = [bread_crum]
         else:
-            bread_crum = dir_reverse(traverse_dir)
-            gr[room_id_new]["bread_crum"].append(bread_crum)
+            gr[room_id_new]["bread_crums"].append(bread_crum)
 
         # fill graph info
         gr[room_id][traverse_dir] = room_id_new
         gr[room_id_new][bread_crum] = room_id
     else:
         # use bread_crum to walk back
-        if "bread_crum" in gr[room_id]:
-            bread_crums = gr[room_id]["bread_crum"]
+        if "bread_crums" in gr[room_id]:
+            bread_crums = gr[room_id]["bread_crums"]
             room_id_new = walk(bread_crums[-1])
             if len(bread_crums) > 1:
-                gr[room_id]["bread_crum"].pop()
+                gr[room_id]["bread_crums"].pop()
 
 
 
