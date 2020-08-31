@@ -50,7 +50,7 @@ def gr_init_room():
     global player
     return arr_to_obj(player.current_room.get_exits())
 
-def traverse(dir):
+def walk(dir):
     global player
     player.travel(dir)
     traversal_path.append(dir)
@@ -79,6 +79,7 @@ while True:
     if len(gr) == 0:
         # add first room
         gr[room_id] = gr_init_room()
+        gr[room_id]["bread_crum"] = []
     elif len(gr) >= 500 and room_id == 0:
         # complete traversal
         break
@@ -89,40 +90,29 @@ while True:
         traverse_dir = pick_room_to_enter()
 
         # travel to new room
-        room_id_new = traverse(traverse_dir)
+        room_id_new = walk(traverse_dir)
 
         # init room
-        gr[room_id_new] = gr_init_room()
+        if room_id_new not in gr:
+            gr[room_id_new] = gr_init_room()
 
-        # add 'bread_crum' of how to walk back faster
-        bread_crum = dir_reverse(traverse_dir)
-        gr[room_id_new]["bread_crum"] = bread_crum
+            # add 'bread_crum' of how to walk back faster
+            bread_crum = dir_reverse(traverse_dir)
+            gr[room_id_new]["bread_crum"] = [bread_crum]
+        else:
+            bread_crum = dir_reverse(traverse_dir)
+            gr[room_id_new]["bread_crum"].append(bread_crum)
 
         # fill graph info
         gr[room_id][traverse_dir] = room_id_new
         gr[room_id_new][bread_crum] = room_id
     else:
         # use bread_crum to walk back
-        bread_crum = gr[room_id]["bread_crum"]
-        room_id_new = traverse(bread_crum)
-
-    #
-    print(f"{room_id}:  {gr[room_id]}")
-    print(f"{room_id_new}:  {gr[room_id_new]}")
-    print("")
-    print(len(gr))
-    print(len(traversal_path))
-    input("Enter to continue")
-    print("\n\n\n\n\n\n\n\n\n")
-
-    # break
-
-
-#
-print(player.current_room.id)
-print(player.current_room.get_exits())
-print(gr)
-
+        if "bread_crum" in gr[room_id]:
+            bread_crums = gr[room_id]["bread_crum"]
+            room_id_new = walk(bread_crums[-1])
+            if len(bread_crums) > 1:
+                gr[room_id]["bread_crum"].pop()
 
 
 
